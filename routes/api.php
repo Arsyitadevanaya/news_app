@@ -29,6 +29,9 @@ Route::get('users/{id}',[UserController::class,'show']);
 Route::get('posts',[PostController::class,'index']);
 Route::get('posts/{id}',[PostController::class,'show']);
 Route::post('posts',[PostController::class,'store']);
+Route::put('posts/{id}',[PostController::class,'update']);
+Route::delete('posts/{id}',[PostController::class,'destroy']);
+
 
 
 
@@ -36,5 +39,9 @@ Route::post('posts',[PostController::class,'store']);
 Route::get('coments',[ComentController::class,'index']);
 Route::get('coments/{id}',[ComentController::class,'show']);
 Route::post('coments',[ComentController::class,'store']);
+Route::put('coments/{id}',[ComentController::class,'update']);
+Route::delete('coments/{id}',[ComentController::class,'destroy']);
+
+
 
 

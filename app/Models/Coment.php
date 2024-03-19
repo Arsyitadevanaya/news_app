@@ -9,7 +9,7 @@ class Coment extends Model
 {
     use HasFactory;
     protected $table = 'coments';
-    protected $fillable = ['coments_content'];
+    protected $fillable = ['post_id,user_id,coments_content'];
 
     public function post()
     {

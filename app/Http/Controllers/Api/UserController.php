@@ -15,7 +15,7 @@ class UserController extends Controller
      */
     public function index()
     {
-        $data=User::orderBy('id','asc')->get();
+        $data=User::with(['posts','coment'])->orderBy('id','asc')->get();
         return response() -> json([
             'status' => true,
             'message' => 'Data ditemukan',
@@ -42,7 +42,7 @@ class UserController extends Controller
      */
     public function show($id)
     {
-        $data=User::find($id);
+        $data=User::with(['posts','coment'])->find($id);;
         if($data){
             return response()-> json([
                 'status' => true,

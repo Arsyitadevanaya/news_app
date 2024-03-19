@@ -16,11 +16,12 @@ class ComentController extends Controller
      */
     public function index()
     {
-        $data = Coment::select('coments.*', 'users.username as user', 'posts.title as post')
-            ->join('users', 'coments.user_id', '=', 'users.id')
-            ->join('posts', 'coments.post_id', '=', 'posts.id')
-            ->orderBy('posts.id', 'asc')
-            ->get();
+        // $data = Coment::select('coments.*', 'users.username as user', 'posts.title as post')
+        //     ->join('users', 'coments.user_id', '=', 'users.id')
+        //     ->join('posts', 'coments.post_id', '=', 'posts.id')
+        //     ->orderBy('posts.id', 'asc')
+        //     ->get();
+        $data=Coment::with(['user','post'])->orderBy('id', 'asc')->get();
         return response()->json([
             'status' => true,
             'message' => 'Data ditemukan',
@@ -71,11 +72,8 @@ class ComentController extends Controller
      */
     public function show($id)
     {
-        $data = Coment::select('coments.*', 'users.username as user', 'posts.title as post')
-            ->join('users', 'coments.user_id', '=', 'users.id')
-            ->join('posts', 'coments.post_id', '=', 'posts.id')
-            ->orderBy('posts.id', 'asc')
-            ->find($id);
+
+        $data=Coment::with(['user','post'])->find($id);
         if ($data) {
             return response()->json([
                 'status' => true,
@@ -100,7 +98,37 @@ class ComentController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $dataComent = Coment::find($id);
+        if(empty($dataComent)){
+            return response()->json([
+                'status' => false,
+                'message' => 'Data tidak ditemuka'
+            ],404);
+        }
+
+        $rules = [
+            'post_id' => 'required',
+            'user_id' => 'required',
+            'coments_content' => 'required',
+        ];
+        $validator= Validator::make($request->all(),$rules);
+        if($validator->fails()){
+            return response()->json([
+                'status'=>false,
+                'message'=>'Gagal melakukan update data',
+                'data'=>$validator->errors()
+            ]);
+        }
+
+        $dataComent->post_id= $request->post_id;
+        $dataComent->user_id=$request->user_id;
+        $dataComent->coments_content=$request->coments_content;
+        $post = $dataComent->save();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Sukses melakukan update data'
+        ]);
     }
 
     /**
@@ -111,6 +139,19 @@ class ComentController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $dataComent = Coment::find($id);
+        if(empty($dataComent)){
+            return response()->json([
+                'status' => false,
+                'message' => 'Data tidak ditemuka'
+            ],404);
+        }
+
+        $post = $dataComent->delete();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Sukses melakukan delete data'
+        ]);
     }
 }

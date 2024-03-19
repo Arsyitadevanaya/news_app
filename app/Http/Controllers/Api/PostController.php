@@ -16,10 +16,7 @@ class PostController extends Controller
      */
     public function index()
     {
-        $data = Posts::select('posts.*', 'users.username as author_name')
-            ->join('users', 'posts.author', '=', 'users.id')
-            ->orderBy('posts.id', 'asc')
-            ->get();
+        $data = Posts::with(['user'])->orderBy('id', 'asc')->get();
         return response()->json([
             'status' => true,
             'message' => 'Data ditemukan',
@@ -42,18 +39,18 @@ class PostController extends Controller
             'news_content' => 'required',
             'author' => 'required',
         ];
-        $validator= Validator::make($request->all(),$rules);
-        if($validator->fails()){
+        $validator = Validator::make($request->all(), $rules);
+        if ($validator->fails()) {
             return response()->json([
-                'status'=>false,
-                'message'=>'Gagal memasukkan data',
-                'data'=>$validator->errors()
+                'status' => false,
+                'message' => 'Gagal memasukkan data',
+                'data' => $validator->errors()
             ]);
         }
 
-        $dataPost->title= $request->title;
-        $dataPost->news_content=$request->news_content;
-        $dataPost->author=$request->author;
+        $dataPost->title = $request->title;
+        $dataPost->news_content = $request->news_content;
+        $dataPost->author = $request->author;
         $post = $dataPost->save();
 
         return response()->json([
@@ -70,10 +67,8 @@ class PostController extends Controller
      */
     public function show($id)
     {
-        $data = Posts::select('posts.*', 'users.username as author_name')
-            ->join('users', 'posts.author', '=', 'users.id')
-            ->orderBy('posts.id', 'asc')
-            ->find($id);
+
+        $data = Posts::with(['user'])->orderBy('id', 'asc')->find($id);
         if ($data) {
             return response()->json([
                 'status' => true,
@@ -98,7 +93,37 @@ class PostController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $dataPost = Posts::find($id);
+        if (empty($dataPost)) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Data tidak ditemuka'
+            ], 404);
+        }
+
+        $rules = [
+            'title' => 'required',
+            'news_content' => 'required',
+            'author' => 'required',
+        ];
+        $validator = Validator::make($request->all(), $rules);
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Gagal melakukan update data',
+                'data' => $validator->errors()
+            ], 404);
+        }
+
+        $dataPost->title = $request->title;
+        $dataPost->news_content = $request->news_content;
+        $dataPost->author = $request->author;
+        $post = $dataPost->save();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Sukses melakukan update data'
+        ], 200);
     }
 
     /**
@@ -109,6 +134,19 @@ class PostController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $dataPost = Posts::find($id);
+        if (empty($dataPost)) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Data tidak ditemuka'
+            ], 404);
+        }
+
+        $post = $dataPost->delete();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Sukses melakukan delete data'
+        ], 200);
     }
 }
